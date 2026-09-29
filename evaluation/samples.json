@@ -1,0 +1,42 @@
+[
+  {
+    "id": "health-benefits-comparison",
+    "request_text": "During annual enrollment, employees struggle to compare health insurance plans because premiums, deductibles, coverage, and benefits are documented differently. HR needs a simpler comparison experience that reduces repetitive questions.",
+    "required_terms": ["health", "plan", "employees"]
+  },
+  {
+    "id": "sales-performance-reporting",
+    "request_text": "Regional sales managers combine separate Excel files every Monday to compare sales performance against targets. They need a trusted dashboard with consistent metrics and weekly refreshes.",
+    "required_terms": ["sales", "performance", "metrics"]
+  },
+  {
+    "id": "customer-order-support",
+    "request_text": "Customers repeatedly contact support agents for order status, delivery dates, refunds, and returns. The service team wants self-service answers backed by current order data.",
+    "required_terms": ["customers", "order", "support"]
+  },
+  {
+    "id": "invoice-data-extraction",
+    "request_text": "Finance manually extracts vendor invoice data from PDFs and scanned documents before entering it into the finance system. The team needs faster processing with field validation and exception review.",
+    "required_terms": ["invoice", "finance", "document"]
+  },
+  {
+    "id": "employee-onboarding",
+    "request_text": "New employee onboarding activities span training, documentation, system access, and policy acknowledgements. HR and hiring managers need task ownership, due dates, and completion visibility.",
+    "required_terms": ["onboarding", "tasks", "HR"]
+  },
+  {
+    "id": "travel-expense-workflow",
+    "request_text": "Employees email travel expenses and receipts to Finance, which tracks approvals and pending reimbursements in a spreadsheet. Both groups need a clear submission and review workflow.",
+    "required_terms": ["expenses", "Finance", "workflow"]
+  },
+  {
+    "id": "marketing-campaign-analytics",
+    "request_text": "Marketing analysts manually combine campaign data from email, social media, and search platforms. Campaign managers need a cross-channel performance view with shared attribution definitions.",
+    "required_terms": ["marketing", "campaign", "channel"]
+  },
+  {
+    "id": "facilities-service-intake",
+    "request_text": "Facilities receives office issues about broken equipment, temperature problems, cleaning requirements, and meeting rooms through email and chat. Employees need one place to submit and track issues.",
+    "required_terms": ["facilities", "issues", "employees"]
+  }
+]

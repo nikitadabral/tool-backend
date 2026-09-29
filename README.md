@@ -4,13 +4,15 @@ FastAPI backend for the Request Triage application. It provides JWT
 authentication, requester and reviewer workflows, SQLite persistence, and a
 provider boundary for structured brief generation.
 
-## Prerequisites
+## 1. Setup Instructions
+
+### Prerequisites
 
 - Python 3.10 or newer
 
-## Setup
+### Install dependencies
 
-From this directory:
+From `backend/`:
 
 ```bash
 python3 -m venv .venv
@@ -18,81 +20,97 @@ source .venv/bin/activate
 python -m pip install -r requirements.txt
 ```
 
-The API works with its development defaults and does not require an environment
-file. To override them, create `.env` in this directory:
+### Configure the environment
+
+The API runs with development defaults and does not require an environment
+file. For any shared environment, create `backend/.env` and replace the default
+JWT secret:
 
 ```dotenv
-DEBUG=true
-CORS_ORIGINS=http://localhost:5173,http://127.0.0.1:5173
-DATABASE_URL=sqlite:///./app.db
-JWT_SECRET=replace-this-for-any-shared-environment
-JWT_ALGORITHM=HS256
-ACCESS_TOKEN_EXPIRE_MINUTES=60
-OPENAI_API_KEY=
+JWT_SECRET=replace-with-a-long-random-secret
 ```
 
-Start the server on the frontend's default API port:
+To demonstrate webhook delivery when a request is approved, also add:
+
+```dotenv
+OUTBOUND_WEBHOOK_URL=https://your-webhook-url
+OUTBOUND_WEBHOOK_SECRET=optional-secret
+```
+
+Omit both webhook settings when the integration is not needed.
+
+Optional overrides include `CORS_ORIGINS`, `DATABASE_URL`,
+`ACCESS_TOKEN_EXPIRE_MINUTES`, `OUTBOUND_WEBHOOK_URL`,
+`OUTBOUND_WEBHOOK_SECRET`, and `OUTBOUND_WEBHOOK_TIMEOUT_SECONDS`.
+
+### Run the API
 
 ```bash
 uvicorn app.main:app --reload --port 8010
 ```
 
-The application creates `app.db` and its tables on startup.
+Open <http://localhost:8010/docs> for the interactive API documentation. The
+application creates the SQLite database and tables automatically on startup.
 
-- API documentation: http://localhost:8010/docs
-- OpenAPI schema: http://localhost:8010/openapi.json
-- Health check: http://localhost:8010/health
+## 2. Assumptions
 
-## API Overview
+- The API is a local-development MVP running as a single instance.
+- SQLite is sufficient for local development.
+- Users choose either the requester or reviewer role during signup.
+- Request content is stored as a single text field.
+- Brief generation uses a deterministic mock AI provider and does not call a
+  paid or external LLM service.
 
-| Method | Path | Access |
-| --- | --- | --- |
-| `POST` | `/api/auth/signup` | Public |
-| `POST` | `/api/auth/login` | Public |
-| `POST` | `/api/auth/logout` | Authenticated |
-| `GET` | `/api/auth/me` | Authenticated |
-| `POST` | `/api/requests` | Authenticated |
-| `GET` | `/api/requests/mine` | Authenticated |
-| `GET` | `/api/requests` | Reviewer |
-| `GET` | `/api/requests/{id}` | Authenticated |
-| `POST` | `/api/requests/{id}/generate-brief` | Reviewer |
-| `PATCH` | `/api/requests/{id}/triage` | Reviewer |
+## 3. Known Gaps
 
-## Run Tests
+- Brief generation uses a placeholder provider instead of a live AI service.
+- Database migrations are not managed with a migration framework.
+- Authentication does not include token revocation, email verification, or
+  password reset.
+- Production deployment, rate limiting, and observability are not configured.
 
-Tests use a temporary in-memory SQLite database and do not modify `app.db`:
+## 4. How to Run Tests
+
+Tests use a temporary in-memory SQLite database and do not modify `app.db`.
+The suite covers API, authentication, validation, database persistence, and
+brief-generation workflow and output-shape validation.
+
+From the project root, run:
 
 ```bash
+cd backend
 source .venv/bin/activate
 pytest
 ```
 
-To run one test module:
+To run a specific test module:
 
 ```bash
 pytest tests/test_auth.py
-pytest tests/test_intake.py
 ```
 
-## Assumptions
+Automated webhook tests provide isolated test configuration and do not require
+webhook values in `.env`. Run them with:
 
-- This service is a local-development MVP running as a single API instance.
-- SQLite is sufficient for the expected development workload.
-- Users choose either the requester or reviewer role during signup.
-- Request content is intentionally persisted as one unstructured text field.
-- Structured brief generation must be deterministic for now, so it does not
-  require an external AI service or API key.
+```bash
+pytest tests/test_webhook.py tests/test_intake.py::test_approval_queues_configured_external_handoff
+```
 
-## Known Gaps
+For a manual webhook test, set `OUTBOUND_WEBHOOK_URL` and optionally
+`OUTBOUND_WEBHOOK_SECRET` in `.env`, restart the API, and approve a request.
 
-- `PlaceholderBriefProvider` generates keyword-based content rather than calling
-  an LLM; `OPENAI_API_KEY` is currently unused.
-- Schema updates rely on table creation and a small development-only column
-  updater instead of a migration framework such as Alembic.
-- JWT logout cannot revoke a token before it expires.
-- Signup trusts the requested role. There is no administrator approval,
-  external identity provider, email verification, or password reset.
-- Any authenticated user can fetch any request by ID; requester ownership is not
-  enforced on the detail endpoint.
-- Production concerns such as rate limiting, managed secrets, observability,
-  database pooling, and deployment configuration are not implemented.
+### Run data-quality checks
+
+To evaluate generated brief quality against the fixed sample dataset, run from
+`backend/`:
+
+```bash
+source .venv/bin/activate
+python -m evaluation.evaluate_briefs
+```
+
+To run the automated evaluation tests:
+
+```bash
+pytest tests/test_evaluation.py -v
+```

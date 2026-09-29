@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 class StructuredBrief(BaseModel):
@@ -10,3 +10,5 @@ class StructuredBrief(BaseModel):
     clarifying_questions: list[str]
     risks: list[str]
     next_action: str
+
+    model_config = ConfigDict(from_attributes=True)

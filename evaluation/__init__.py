@@ -1,0 +1,1 @@
+"""Deterministic quality evaluation for generated briefs."""

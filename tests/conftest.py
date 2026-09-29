@@ -1,5 +1,6 @@
 import os
 import sys
+from types import SimpleNamespace
 
 import pytest
 from fastapi.testclient import TestClient
@@ -12,11 +13,11 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")
 
 from app.db.session import Base, get_db  # noqa: E402
 from app.main import app  # noqa: E402
-from app.models import request, user  # noqa: E402,F401  (register tables)
+from app.models import request, request_audit, user  # noqa: E402,F401
 
 
 @pytest.fixture()
-def client():
+def client(monkeypatch):
     engine = create_engine(
         "sqlite://",
         connect_args={"check_same_thread": False},
@@ -32,6 +33,12 @@ def client():
         finally:
             db.close()
 
+    settings = SimpleNamespace(
+        outbound_webhook_url=None,
+        outbound_webhook_timeout_seconds=5.0,
+        outbound_webhook_secret=None,
+    )
+    monkeypatch.setattr("app.api.routes.intake.get_settings", lambda: settings)
     app.dependency_overrides[get_db] = override_get_db
     # No context manager: skip lifespan so the real app.db is left untouched.
     yield TestClient(app)

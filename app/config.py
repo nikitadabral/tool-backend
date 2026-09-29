@@ -19,6 +19,11 @@ class Settings(BaseSettings):
     jwt_algorithm: str = "HS256"
     access_token_expire_minutes: int = 60
 
+    # Optional outbound handoff for newly approved requests.
+    outbound_webhook_url: str | None = None
+    outbound_webhook_secret: str | None = None
+    outbound_webhook_timeout_seconds: float = 5.0
+
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
     @property
