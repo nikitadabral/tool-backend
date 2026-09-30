@@ -8,7 +8,7 @@ class Settings(BaseSettings):
 
     app_name: str = "Request Triage API"
     debug: bool = True
-    cors_origins: str = "http://localhost:5173,http://127.0.0.1:5173"
+    cors_origins: str = "http://localhost:5173,http://127.0.0.1:5173,https://tool-ui.onrender.com/"
     database_url: str = "sqlite:///./app.db"
 
     # Optional until PlaceholderBriefProvider is replaced by an OpenAI provider.
